@@ -72,6 +72,7 @@ macro_rules! impl_strict_struct {
                 }
             }
         }
+        impl $crate::DefaultBasedStrictDumb for $ty { }
         impl $crate::StrictType for $ty {
             const STRICT_LIB_NAME: &'static str = $lib;
         }

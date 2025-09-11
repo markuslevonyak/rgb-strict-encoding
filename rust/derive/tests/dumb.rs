@@ -29,7 +29,7 @@ extern crate amplify;
 mod common;
 
 use amplify::confinement::Confined;
-use strict_encoding::{StrictDecode, StrictDumb, StrictEncode, StrictType};
+use strict_encoding::{DefaultBasedStrictDumb, StrictDecode, StrictDumb, StrictEncode, StrictType};
 
 const TEST_LIB: &str = "TestLib";
 
@@ -39,11 +39,13 @@ fn struct_default() -> common::Result {
     #[derive(StrictType)]
     #[strict_type(lib = TEST_LIB)]
     struct Field<V: StrictEncode + StrictDecode>
-    where V: Default
+    where V: Default + DefaultBasedStrictDumb
     {
         name: u8,
         value: V,
     }
+    impl<V> DefaultBasedStrictDumb for Field<V> where V: StrictEncode + StrictDecode + Default + DefaultBasedStrictDumb
+    {}
 
     assert_eq!(Field::<u8>::strict_dumb(), Field::<u8>::default());
 
@@ -63,6 +65,7 @@ fn enum_default() -> common::Result {
         #[default]
         Three,
     }
+    impl DefaultBasedStrictDumb for Variants {}
 
     assert_eq!(Variants::strict_dumb(), Variants::Three);
 
@@ -82,6 +85,7 @@ fn enum_explicit() -> common::Result {
         #[strict_type(dumb)]
         Three,
     }
+    impl DefaultBasedStrictDumb for Variants {}
 
     assert_eq!(Variants::strict_dumb(), Variants::Three);
 

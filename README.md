@@ -1,16 +1,11 @@
 # Strict encoding
 
-[![Apache-2 licensed](https://img.shields.io/crates/l/strict_encoding)](./LICENSE)
-
 #### Protobufs for functional programming
 
 This is a set of libraries for deterministic binary serialization using
 [strict types] &ndash; type system made with category theory which ensures
 provable properties and bounds for the in-memory and serialized type
 representation.
-
-The development of the libraries is performed by
-[UBIDECO Labs](https://ubideco.org), a part of [InDCS](https://indcs.org).
 
 ## Overview
 
@@ -35,25 +30,11 @@ types in binary formats.
 
 ![strict-encoding-box](https://user-images.githubusercontent.com/372034/209443924-add45986-d90c-42f9-bfaa-2fd2b0d50506.png)
 
-## Libraries
-
-| Language   | Source code      | Package                                                                                                   |
-|------------|------------------|-----------------------------------------------------------------------------------------------------------|
-| Rust       | [./rust](./rust) | [![crates.io](https://img.shields.io/crates/v/strict_encoding)](https://crates.io/crates/strict_encoding) |
-| Python     | Planned          | n/a                                                                                                       |
-| TypeScript | Planned          | n/a                                                                                                       |
-| Swift      | Planned          | n/a                                                                                                       |
-| Kotlin     | Planned          | n/a                                                                                                       |
-
 ## Contributing
 
 [CONTRIBUTING.md](../CONTRIBUTING.md)
 
-## License
-
-The libraries are distributed on the terms of [Apache 2.0 license](LICENSE).
-
-[strict types]: https://strict-types.org
+[strict types]: https://github.com/rgb-protocol/rgb-strict-types
 
 [gadt]: https://en.wikipedia.org/wiki/Algebraic_data_type
 

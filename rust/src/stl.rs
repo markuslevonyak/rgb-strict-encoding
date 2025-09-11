@@ -35,8 +35,8 @@ use amplify::confinement::Confined;
 use amplify::num::{u1, u2, u3, u4, u5, u6, u7};
 
 use crate::{
-    type_name, DecodeError, StrictDecode, StrictDumb, StrictEncode, StrictEnum, StrictSum,
-    StrictType, TypeName, TypedRead, TypedWrite, VariantError, LIB_NAME_STD,
+    type_name, DecodeError, DefaultBasedStrictDumb, StrictDecode, StrictDumb, StrictEncode,
+    StrictEnum, StrictSum, StrictType, TypeName, TypedRead, TypedWrite, VariantError, LIB_NAME_STD,
 };
 
 // TODO: Move RString and related ASCII types to amplify library
@@ -246,7 +246,7 @@ pub enum Bool {
     False = 0,
     True = 1,
 }
-
+impl DefaultBasedStrictDumb for Bool {}
 impl From<&bool> for Bool {
     fn from(value: &bool) -> Self { Bool::from(*value) }
 }
@@ -296,6 +296,8 @@ macro_rules! impl_u {
             #[default]
             $( $no ),+
         }
+
+        impl DefaultBasedStrictDumb for $ty { }
 
         impl StrictType for $inner {
             const STRICT_LIB_NAME: &'static str = LIB_NAME_STD;

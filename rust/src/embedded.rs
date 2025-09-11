@@ -34,10 +34,10 @@ use amplify::{Array, Wrapper};
 
 use crate::stl::AsciiSym;
 use crate::{
-    DecodeError, DefineUnion, Primitive, RString, ReadRaw, ReadTuple, ReadUnion, RestrictedCharSet,
-    Sizing, StrictDecode, StrictDumb, StrictEncode, StrictProduct, StrictStruct, StrictSum,
-    StrictTuple, StrictType, StrictUnion, TypeName, TypedRead, TypedWrite, WriteRaw, WriteTuple,
-    WriteUnion, LIB_EMBEDDED,
+    DecodeError, DefaultBasedStrictDumb, DefineUnion, Primitive, RString, ReadRaw, ReadTuple,
+    ReadUnion, RestrictedCharSet, Sizing, StrictDecode, StrictDumb, StrictEncode, StrictProduct,
+    StrictStruct, StrictSum, StrictTuple, StrictType, StrictUnion, TypeName, TypedRead, TypedWrite,
+    WriteRaw, WriteTuple, WriteUnion, LIB_EMBEDDED,
 };
 
 pub trait DecodeRawLe: Sized {
@@ -52,6 +52,8 @@ pub trait DecodeRawLe: Sized {
 #[derive(StrictType, StrictDecode)]
 #[strict_type(lib = LIB_EMBEDDED, crate = crate)]
 pub struct Byte(u8);
+
+impl DefaultBasedStrictDumb for Byte {}
 
 impl StrictEncode for Byte {
     fn strict_encode<W: TypedWrite>(&self, mut writer: W) -> io::Result<W> {
@@ -197,6 +199,7 @@ where T: StrictSum
     const ALL_VARIANTS: &'static [(u8, &'static str)] = T::ALL_VARIANTS;
     fn variant_name(&self) -> &'static str { self.as_ref().variant_name() }
 }
+impl<T> DefaultBasedStrictDumb for Box<T> {}
 impl<T> StrictProduct for Box<T> where T: Default + StrictProduct {}
 impl<T> StrictUnion for Box<T> where T: Default + StrictUnion {}
 impl<T> StrictTuple for Box<T>
@@ -282,6 +285,7 @@ impl<A: StrictType, B: StrictType> StrictType for (A, B) {
     const STRICT_LIB_NAME: &'static str = LIB_EMBEDDED;
     fn strict_name() -> Option<TypeName> { None }
 }
+impl<A: StrictType + Default, B: StrictType + Default> DefaultBasedStrictDumb for (A, B) {}
 impl<A: StrictType + Default, B: StrictType + Default> StrictProduct for (A, B) {}
 impl<A: StrictType + Default, B: StrictType + Default> StrictTuple for (A, B) {
     const FIELD_COUNT: u8 = 2;
@@ -304,6 +308,10 @@ impl<A: StrictDecode + Default, B: StrictDecode + Default> StrictDecode for (A, 
 impl<A: StrictType, B: StrictType, C: StrictType> StrictType for (A, B, C) {
     const STRICT_LIB_NAME: &'static str = LIB_EMBEDDED;
     fn strict_name() -> Option<TypeName> { None }
+}
+impl<A: StrictType + Default, B: StrictType + Default, C: StrictType + Default>
+    DefaultBasedStrictDumb for (A, B, C)
+{
 }
 impl<A: StrictType + Default, B: StrictType + Default, C: StrictType + Default> StrictProduct
     for (A, B, C)
@@ -385,6 +393,10 @@ impl<T: StrictDecode + StrictDumb + Copy, const LEN: usize, const REVERSE_STR: b
     }
 }
 
+impl<const MIN_LEN: usize, const MAX_LEN: usize> DefaultBasedStrictDumb
+    for Confined<String, MIN_LEN, MAX_LEN>
+{
+}
 impl<const MIN_LEN: usize, const MAX_LEN: usize> StrictType for Confined<String, MIN_LEN, MAX_LEN> {
     const STRICT_LIB_NAME: &'static str = LIB_EMBEDDED;
     fn strict_name() -> Option<TypeName> { None }
@@ -410,6 +422,10 @@ impl<const MIN_LEN: usize, const MAX_LEN: usize> StrictDecode
     }
 }
 
+impl<const MIN_LEN: usize, const MAX_LEN: usize> DefaultBasedStrictDumb
+    for Confined<AsciiString, MIN_LEN, MAX_LEN>
+{
+}
 impl<const MIN_LEN: usize, const MAX_LEN: usize> StrictType
     for Confined<AsciiString, MIN_LEN, MAX_LEN>
 {
@@ -518,6 +534,10 @@ impl<T: StrictDecode, const MIN_LEN: usize, const MAX_LEN: usize> StrictDecode
     }
 }
 
+impl<T: StrictType, const MIN_LEN: usize, const MAX_LEN: usize> DefaultBasedStrictDumb
+    for Confined<VecDeque<T>, MIN_LEN, MAX_LEN>
+{
+}
 impl<T: StrictType, const MIN_LEN: usize, const MAX_LEN: usize> StrictType
     for Confined<VecDeque<T>, MIN_LEN, MAX_LEN>
 {
@@ -553,6 +573,10 @@ impl<T: StrictDecode, const MIN_LEN: usize, const MAX_LEN: usize> StrictDecode
     }
 }
 
+impl<T: StrictType + Ord, const MIN_LEN: usize, const MAX_LEN: usize> DefaultBasedStrictDumb
+    for Confined<BTreeSet<T>, MIN_LEN, MAX_LEN>
+{
+}
 impl<T: StrictType + Ord, const MIN_LEN: usize, const MAX_LEN: usize> StrictType
     for Confined<BTreeSet<T>, MIN_LEN, MAX_LEN>
 {
@@ -590,6 +614,10 @@ impl<T: StrictDecode + Ord, const MIN_LEN: usize, const MAX_LEN: usize> StrictDe
     }
 }
 
+impl<K: StrictType + Ord + Hash, V: StrictType, const MIN_LEN: usize, const MAX_LEN: usize>
+    DefaultBasedStrictDumb for Confined<BTreeMap<K, V>, MIN_LEN, MAX_LEN>
+{
+}
 impl<K: StrictType + Ord + Hash, V: StrictType, const MIN_LEN: usize, const MAX_LEN: usize>
     StrictType for Confined<BTreeMap<K, V>, MIN_LEN, MAX_LEN>
 {

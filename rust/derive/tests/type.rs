@@ -31,7 +31,8 @@ extern crate strict_encoding_derive;
 mod common;
 
 use strict_encoding::{
-    tn, StrictDeserialize, StrictSerialize, StrictStruct, StrictSum, StrictType,
+    tn, DefaultBasedStrictDumb, StrictDeserialize, StrictSerialize, StrictStruct, StrictSum,
+    StrictType,
 };
 
 const TEST_LIB: &str = "TestLib";
@@ -42,6 +43,7 @@ fn lib_name() -> common::Result {
     #[derive(StrictType)]
     #[strict_type(lib = TEST_LIB)]
     struct OtherName(u16);
+    impl DefaultBasedStrictDumb for OtherName {}
 
     assert_eq!(OtherName::STRICT_LIB_NAME, TEST_LIB);
 
@@ -54,6 +56,7 @@ fn rename_type() -> common::Result {
     #[derive(StrictType)]
     #[strict_type(lib = TEST_LIB, rename = "ShortLen")]
     struct OtherName(u16);
+    impl DefaultBasedStrictDumb for OtherName {}
 
     assert_eq!(OtherName::STRICT_LIB_NAME, TEST_LIB);
     assert_eq!(OtherName::strict_name().unwrap(), tn!("ShortLen"));
@@ -69,6 +72,7 @@ fn fields() -> common::Result {
     struct Struct {
         must_camelize: u8,
     }
+    impl DefaultBasedStrictDumb for Struct {}
 
     assert_eq!(Struct::ALL_FIELDS, &["mustCamelize"]);
 
@@ -110,6 +114,7 @@ fn rename_field() -> common::Result {
         #[strict_type(rename = "correctName")]
         wrong_name: u8,
     }
+    impl DefaultBasedStrictDumb for Struct {}
 
     assert_eq!(Struct::ALL_FIELDS, &["mustCamelize", "correctName"]);
 
@@ -129,6 +134,7 @@ fn skip_field() -> common::Result {
     }
     impl StrictSerialize for Struct {}
     impl StrictDeserialize for Struct {}
+    impl DefaultBasedStrictDumb for Struct {}
 
     assert_eq!(Struct::ALL_FIELDS, &["mustCamelize"]);
 

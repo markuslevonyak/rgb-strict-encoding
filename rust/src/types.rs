@@ -58,11 +58,71 @@ pub trait StrictDumb: Sized {
     fn strict_dumb() -> Self;
 }
 
-impl<T> StrictDumb for T
-where T: StrictType + Default
+// Marker trait: only types that implement this can get the blanket StrictDumb.
+pub trait DefaultBasedStrictDumb {}
+
+impl<T> DefaultBasedStrictDumb for Option<T> {}
+impl<T, E> DefaultBasedStrictDumb for Result<T, E> {}
+impl<T> DefaultBasedStrictDumb for Vec<T> {}
+impl<T: Default + DefaultBasedStrictDumb> DefaultBasedStrictDumb for std::rc::Rc<T> {}
+impl<T: Default + DefaultBasedStrictDumb> DefaultBasedStrictDumb for std::sync::Arc<T> {}
+impl<E, const N: usize> DefaultBasedStrictDumb for [E; N] where E: Default + DefaultBasedStrictDumb {}
+impl<T: ?Sized> DefaultBasedStrictDumb for &T where T: DefaultBasedStrictDumb {}
+impl<T: ?Sized> DefaultBasedStrictDumb for &mut T where T: DefaultBasedStrictDumb {}
+impl<T, const N: usize> DefaultBasedStrictDumb for amplify::Array<T, N> where T: Default + DefaultBasedStrictDumb
+{}
+impl<T, const MAX: usize> DefaultBasedStrictDumb
+    for amplify::confinement::Confined<Vec<T>, 0, MAX>
 {
-    fn strict_dumb() -> T { T::default() }
 }
+
+impl<T> StrictDumb for T
+where T: StrictType + Default + DefaultBasedStrictDumb
+{
+    fn strict_dumb() -> Self { Default::default() }
+}
+
+macro_rules! impl_marker_for {
+    ($($t:ty),+ $(,)?) => { $( impl DefaultBasedStrictDumb for $t {} )+ };
+}
+
+impl_marker_for!(
+    u8,
+    u16,
+    u32,
+    u64,
+    u128,
+    usize,
+    i8,
+    i16,
+    i32,
+    i64,
+    i128,
+    isize,
+    f32,
+    f64,
+    bool,
+    char,
+    (),
+    String,
+    amplify::num::u1,
+    amplify::num::u2,
+    amplify::num::u3,
+    amplify::num::u4,
+    amplify::num::u5,
+    amplify::num::u6,
+    amplify::num::u7,
+    amplify::num::u24,
+    amplify::num::u40,
+    amplify::num::u48,
+    amplify::num::u56,
+    amplify::num::u256,
+    amplify::num::u512,
+    amplify::num::u1024,
+    amplify::num::i256,
+    amplify::num::i512,
+    amplify::num::i1024,
+);
 
 pub trait StrictType: Sized {
     const STRICT_LIB_NAME: &'static str;

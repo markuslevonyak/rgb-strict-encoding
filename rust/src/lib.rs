@@ -46,6 +46,8 @@ extern crate amplify;
 #[macro_use]
 extern crate serde_crate as serde;
 
+#[cfg(feature = "bitcoin")]
+pub mod bitcoin_types;
 #[macro_use]
 mod macros;
 mod types;
@@ -82,3 +84,5 @@ pub const STD_LIB: &str = "StdLib";
 pub const LIB_EMBEDDED: &str = "_";
 pub const LIB_NAME_STD: &str = "Std";
 pub const STRICT_TYPES_LIB: &str = "StrictTypes";
+#[cfg(feature = "bitcoin")]
+pub const LIB_NAME_BITCOIN: &str = "Bitcoin";

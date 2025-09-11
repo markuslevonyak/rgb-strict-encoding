@@ -4,14 +4,15 @@ default-members = ["rust", "rust/derive", "rust/test_helpers"]
 resolver = "2"
 
 [workspace.package]
-version = "2.8.2"
-authors = ["Dr Maxim Orlovsky <orlovsky@ubideco.org>"]
-homepage = "https://strict-types.org"
-repository = "https://github.com/strict-types/strict-encoding"
+version = "2.8.0"
+authors = ["Zoe Faltibà <zoefaltiba@gmail.com>"]
+repository = "https://github.com/rgb-protocol/rgb-strict-encoding"
 rust-version = "1.82.0"
 edition = "2021"
 license = "Apache-2.0"
 
 [workspace.dependencies]
-amplify = { version = "4.8.0" }
-serde_crate = { package = "serde", version = "1", features = ["derive"] }
+amplify = "=4.8.1"
+serde_crate = { package = "serde", version = "1", features = [
+    "derive",
+] }
