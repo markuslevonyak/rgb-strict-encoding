@@ -173,5 +173,7 @@ fn dumb_ultra_complex() -> common::Result {
         Confined<Vec<T>, 1, { u8::MAX as usize }>,
     );
 
+    assert_eq!(NamedFields::<u8>::strict_dumb(), NamedFields(Confined::with(u8::strict_dumb())));
+
     Ok(())
 }

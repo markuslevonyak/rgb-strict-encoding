@@ -42,6 +42,10 @@ fn wrapper_base() -> common::Result {
     #[strict_type(lib = TEST_LIB)]
     struct ShortLen(u16);
 
+    impl StrictSerialize for ShortLen {}
+
+    assert_eq!(ShortLen(7).to_strict_serialized::<2>().unwrap().as_slice(), &[7, 0]);
+
     Ok(())
 }
 
@@ -51,6 +55,12 @@ fn tuple_base() -> common::Result {
     #[derive(StrictDumb, StrictType, StrictEncode, StrictDecode)]
     #[strict_type(lib = TEST_LIB)]
     struct TaggedInfo(u16, u64);
+
+    impl StrictSerialize for TaggedInfo {}
+
+    assert_eq!(TaggedInfo(7, 9).to_strict_serialized::<10>().unwrap().as_slice(), &[
+        7, 0, 9, 0, 0, 0, 0, 0, 0, 0
+    ]);
 
     Ok(())
 }
@@ -65,14 +75,37 @@ fn tuple_generics() -> common::Result {
         B: StrictDumb + StrictEncode + StrictDecode,
     >(A, B);
 
+    impl<
+            A: StrictDumb + StrictEncode + StrictDecode,
+            B: StrictDumb + StrictEncode + StrictDecode,
+        > StrictSerialize for Pair<A, B>
+    {
+    }
+
+    assert_eq!(Pair(7, 9).to_strict_serialized::<8>().unwrap().as_slice(), &[
+        7, 0, 0, 0, 9, 0, 0, 0
+    ]);
+
     #[derive(Clone, PartialEq, Eq, Debug)]
     #[derive(StrictDumb, StrictType, StrictEncode, StrictDecode)]
     #[strict_type(lib = TEST_LIB)]
-    struct WhereConstraint<A: TryInto<u8>, B: From<String>>(A, B)
+    struct WhereConstraint<A: TryInto<u8>, B: From<i32>>(A, B)
     where
         A: StrictDumb + StrictEncode + StrictDecode + From<u8>,
         <A as TryFrom<u8>>::Error: From<Infallible>,
         B: StrictDumb + StrictEncode + StrictDecode;
+
+    impl<A: TryInto<u8>, B: From<i32>> StrictSerialize for WhereConstraint<A, B>
+    where
+        A: StrictDumb + StrictEncode + StrictDecode + From<u8>,
+        <A as TryFrom<u8>>::Error: From<Infallible>,
+        B: StrictDumb + StrictEncode + StrictDecode,
+    {
+    }
+
+    assert_eq!(WhereConstraint(7, 9).to_strict_serialized::<8>().unwrap().as_slice(), &[
+        7, 0, 0, 0, 9, 0, 0, 0
+    ]);
 
     Ok(())
 }
@@ -87,17 +120,11 @@ fn struct_generics() -> common::Result {
         value: V,
     }
 
-    #[derive(Clone, PartialEq, Eq, Debug)]
-    #[derive(StrictDumb, StrictType, StrictEncode)]
-    #[strict_type(lib = TEST_LIB)]
-    struct ComplexField<'a, V: StrictEncode + StrictDumb>
-    where
-        for<'b> V: From<&'b str>,
-        &'a V: Default,
-    {
-        tag: u8,
-        value: &'a V,
-    }
+    impl<V: StrictEncode + StrictDecode + StrictDumb> StrictSerialize for Field<V> {}
+
+    assert_eq!(Field { tag: 7, value: 9 }.to_strict_serialized::<5>().unwrap().as_slice(), &[
+        7, 9, 0, 0, 0
+    ]);
 
     Ok(())
 }
