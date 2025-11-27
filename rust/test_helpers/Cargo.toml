@@ -10,10 +10,11 @@ edition = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 readme = "../README.md"
+publish = false
 
 [lib]
 name = "strict_encoding_test"
 
 [dependencies]
 amplify = { workspace = true }
-rgb-strict-encoding = { version = "2.8.0", path = ".." }
+rgb-strict-encoding = { version = "1.0.0", path = ".." }
