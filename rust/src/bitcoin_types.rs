@@ -22,6 +22,7 @@ use std::str::FromStr;
 
 use amplify::confinement::{Confined, U32};
 use amplify::{Bytes, Bytes32};
+pub use bitcoin::constants::ChainHash;
 pub use bitcoin::hashes::Hash as _;
 pub use bitcoin::key::TweakedPublicKey;
 pub use bitcoin::taproot::{LeafScript, LeafVersion};
@@ -72,6 +73,41 @@ impl StrictDecode for Txid {
 
 impl StrictSerialize for Txid {}
 impl StrictDeserialize for Txid {}
+
+impl StrictDumb for ChainHash {
+    fn strict_dumb() -> Self { ChainHash::from([0u8; 32]) }
+}
+
+impl StrictProduct for ChainHash {}
+
+impl StrictTuple for ChainHash {
+    const FIELD_COUNT: u8 = 1;
+}
+
+impl StrictType for ChainHash {
+    const STRICT_LIB_NAME: &'static str = LIB_NAME_BITCOIN;
+    fn strict_name() -> Option<TypeName> { Some(tn!("ChainHash")) }
+}
+
+impl StrictEncode for ChainHash {
+    fn strict_encode<W: TypedWrite>(&self, writer: W) -> io::Result<W> {
+        let bytes: [u8; 32] = self.to_bytes();
+        let confined = Bytes32::from_array(bytes);
+        writer.write_newtype::<Self>(&confined)
+    }
+}
+
+impl StrictDecode for ChainHash {
+    fn strict_decode(reader: &mut impl TypedRead) -> Result<Self, DecodeError> {
+        reader.read_tuple(|r| {
+            let bytes: Bytes32 = r.read_field()?;
+            Ok(ChainHash::from(bytes.to_byte_array()))
+        })
+    }
+}
+
+impl StrictSerialize for ChainHash {}
+impl StrictDeserialize for ChainHash {}
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Display, From)]
 #[derive(StrictType, StrictDumb, StrictEncode, StrictDecode)]
