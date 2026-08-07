@@ -398,7 +398,10 @@ impl Sats {
     derive(Serialize, Deserialize),
     serde(crate = "serde_crate", transparent)
 )]
-pub struct ScriptBytes(pub Confined<Vec<u8>, 0, U32>);
+pub struct ScriptBytes(
+    #[cfg_attr(feature = "serde", serde(with = "crate::serde_helpers::confined"))]
+    pub  Confined<Vec<u8>, 0, U32>,
+);
 
 impl TryFrom<Vec<u8>> for ScriptBytes {
     type Error = amplify::confinement::Error;

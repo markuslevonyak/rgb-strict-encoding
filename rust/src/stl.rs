@@ -72,7 +72,6 @@ pub trait RestrictedCharSet:
 }
 
 #[derive(Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(crate = "serde_crate", transparent))]
 pub struct RString<
     C1: RestrictedCharSet,
     C: RestrictedCharSet = C1,
@@ -221,18 +220,46 @@ impl<C1: RestrictedCharSet, C: RestrictedCharSet, const MIN: usize, const MAX: u
 
 #[cfg(feature = "serde")]
 mod _serde {
-    use serde_crate::de::Error;
-    use serde_crate::{Deserialize, Deserializer};
+    use serde_crate::de::{Error, Unexpected, Visitor};
+    use serde_crate::{Deserialize, Deserializer, Serialize, Serializer};
 
     use super::*;
+
+    // `RString` is (de)serialized as a plain string, without relying on the `serde`
+    // implementations for `AsciiString`/`Confined` provided by the `amplify/serde` feature.
+    impl<C1: RestrictedCharSet, C: RestrictedCharSet, const MIN: usize, const MAX: usize> Serialize
+        for RString<C1, C, MIN, MAX>
+    {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            serializer.serialize_str(self.s.as_str())
+        }
+    }
 
     impl<'de, C1: RestrictedCharSet, C: RestrictedCharSet, const MIN: usize, const MAX: usize>
         Deserialize<'de> for RString<C1, C, MIN, MAX>
     {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where D: Deserializer<'de> {
-            let ascii = AsciiString::deserialize(deserializer)?;
-            Self::try_from(ascii).map_err(D::Error::custom)
+            deserializer.deserialize_string(RStringVisitor(PhantomData))
+        }
+    }
+
+    struct RStringVisitor<C1, C, const MIN: usize, const MAX: usize>(PhantomData<(C1, C)>);
+
+    impl<'de, C1: RestrictedCharSet, C: RestrictedCharSet, const MIN: usize, const MAX: usize>
+        Visitor<'de> for RStringVisitor<C1, C, MIN, MAX>
+    {
+        type Value = RString<C1, C, MIN, MAX>;
+
+        fn expecting(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            write!(f, "an ascii string")
+        }
+
+        fn visit_str<E: Error>(self, s: &str) -> Result<Self::Value, E> {
+            let ascii = AsciiString::from_ascii(s)
+                .map_err(|_| E::invalid_value(Unexpected::Str(s), &self))?;
+            RString::try_from(ascii).map_err(E::custom)
         }
     }
 }

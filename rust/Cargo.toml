@@ -58,7 +58,6 @@ float = [
 ]
 serde = [
     "serde_crate",
-    "amplify/serde"
 ]
 bitcoin = [
     "dep:bitcoin",

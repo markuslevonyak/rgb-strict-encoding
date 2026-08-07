@@ -60,6 +60,8 @@ mod writer;
 mod util;
 mod primitives;
 mod embedded;
+#[cfg(feature = "serde")]
+pub mod serde_helpers;
 pub mod stl;
 #[cfg(test)]
 pub(crate) mod test;

@@ -13,8 +13,6 @@ dependencies = [
  "amplify_num",
  "amplify_syn",
  "ascii",
- "serde",
- "stringly_conversions",
  "wasm-bindgen",
 ]
 
@@ -47,7 +45,6 @@ version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "afed304556696656d2d71495e1e5f2c4b524a3fb6eb0f2f3778ffc482a40b8a8"
 dependencies = [
- "serde",
  "wasm-bindgen",
 ]
 
@@ -73,9 +70,6 @@ name = "ascii"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d92bec98840b8f03a5ff5413de5293bfcd8bf96467cf5452609f939ec6f5de16"
-dependencies = [
- "serde",
-]
 
 [[package]]
 name = "async-trait"
@@ -420,12 +414,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6790f58c7ff633d8771f42965289203411a5e5c68388703c06e14f24770b41e"
 
 [[package]]
-name = "paste"
-version = "1.0.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
-
-[[package]]
 name = "pin-project-lite"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -612,16 +600,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde_str_helpers"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b744a7c94f2f3785496af33a0d93857dfc0c521e25c38e993e9c5bb45f09c841"
-dependencies = [
- "serde",
- "serde_derive",
-]
-
-[[package]]
 name = "serde_yaml"
 version = "0.9.34+deprecated"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -645,16 +623,6 @@ name = "slab"
 version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c790de23124f9ab44544d7ac05d60440adc586479ce501c1d6d7da3cd8c9cf5"
-
-[[package]]
-name = "stringly_conversions"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff63080f492dd4d289ffcaed8d7ece38adfb423db910eb342c0e04d409536a7a"
-dependencies = [
- "paste",
- "serde_str_helpers",
-]
 
 [[package]]
 name = "syn"
